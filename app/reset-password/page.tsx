@@ -1,0 +1,4 @@
+﻿import {Suspense} from "react";import Link from "next/link";import {PasswordUpdateForm,AuthMessage} from "@/components/auth-forms";
+export const metadata={title:"Choose new password",robots:{index:false,follow:false}};
+export default function Page({searchParams}:{searchParams:Promise<{error?:string}>}){return <Suspense fallback={<main className="auth-shell"/>}><UpdatePage searchParams={searchParams}/></Suspense>}
+async function UpdatePage({searchParams}:{searchParams:Promise<{error?:string}>}){const {error}=await searchParams;return <main className="auth-shell"><section className="auth-card"><Link className="auth-brand" href="/">Operlynt</Link><span className="eyebrow">ACCOUNT RECOVERY</span><h1>Choose a new password.</h1><p>Use at least 10 characters to keep your account safer.</p><AuthMessage error={error}/><PasswordUpdateForm/></section></main>}

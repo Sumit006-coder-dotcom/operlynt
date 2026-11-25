@@ -1,0 +1,4 @@
+"use server";
+import {z} from "zod";import {redirect} from "next/navigation";import {requireUser} from "@/lib/auth/require-user";import {createAdminClient} from "@/lib/supabase/admin";
+const deleteSchema=z.object({confirmation:z.literal("DELETE"),email:z.string().trim().email().max(254)});
+export async function deleteAccount(form:FormData){const parsed=deleteSchema.safeParse({confirmation:form.get("confirmation"),email:form.get("email")});if(!parsed.success)redirect("/account/delete?error=invalid");const user=await requireUser();if(!user.email||parsed.data.email.toLowerCase()!==user.email.toLowerCase())redirect("/account/delete?error=invalid");if(!process.env.SUPABASE_SERVICE_ROLE_KEY)redirect("/account/delete?error=admin_not_configured");const admin=createAdminClient();const {error}=await admin.auth.admin.deleteUser(user.id);if(error)redirect("/account/delete?error=delete");await user.supabase.auth.signOut({scope:"global"});redirect("/login?account_deleted=1")}

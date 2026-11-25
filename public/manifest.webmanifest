@@ -1,0 +1,11 @@
+{
+  "name": "Operlynt — Career growth, more intentional",
+  "short_name": "Operlynt",
+  "description": "Build your resume, practice interviews, and find learning matched to your next role.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf7",
+  "theme_color": "#7055d9",
+  "orientation": "portrait-primary",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

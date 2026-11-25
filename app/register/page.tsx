@@ -1,0 +1,4 @@
+﻿import {Suspense} from "react";import Link from "next/link";import {RegisterForm,GoogleForm,AuthLinks,AuthMessage} from "@/components/auth-forms";
+export const metadata={title:"Create account",robots:{index:false,follow:false}};
+export default function Page({searchParams}:{searchParams:Promise<{error?:string}>}){return <Suspense fallback={<main className="auth-shell"/>}><RegisterPage searchParams={searchParams}/></Suspense>}
+async function RegisterPage({searchParams}:{searchParams:Promise<{error?:string}>}){const {error}=await searchParams;return <main className="auth-shell"><section className="auth-card"><Link className="auth-brand" href="/">Operlynt</Link><span className="eyebrow">MAKE SPACE FOR WHAT’S NEXT</span><h1>Create your account</h1><p>Start building a career path that feels like yours.</p><AuthMessage error={error}/><RegisterForm/><GoogleForm/><AuthLinks registerPage/></section></main>}

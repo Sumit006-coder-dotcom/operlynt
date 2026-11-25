@@ -1,0 +1,4 @@
+﻿"use client";
+import {useState,useTransition} from "react";
+import {saveCourseProgress} from "@/app/courses/actions";
+export function ProgressControl({slug,initialProgress=0}:{slug:string;initialProgress?:number}){const [progress,setProgress]=useState(initialProgress),[pending,start]=useTransition();return <div className="course-progress-control"><label htmlFor="course-progress">Your self-tracked progress</label><div><input id="course-progress" type="range" min="0" max="100" step="25" value={progress} onChange={e=>setProgress(Number(e.target.value))}/><strong>{progress}%</strong></div><button className="btn" type="button" disabled={pending} onClick={()=>start(async()=>{const result=await saveCourseProgress({slug,progress});if(result.ok)setProgress(result.progress)})}>{pending?"Saving…":progress===100?"Completed":"Save progress"}</button><small>Progress is tracked in Operlynt; it is not synced with the course provider.</small></div>}

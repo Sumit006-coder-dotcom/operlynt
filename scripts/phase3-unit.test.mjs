@@ -1,0 +1,21 @@
+﻿import assert from "node:assert/strict";
+import {analyzeResume,recommendationsForRole} from "../lib/resume/analysis.ts";
+import {generateResumePdf} from "../lib/resume/pdf.ts";
+import {emptyResumeDocument,ResumeDocumentSchema} from "../lib/resume/model.ts";
+const now=new Date("2026-11-18T12:00:00.000Z");
+const blank=analyzeResume(structuredClone(emptyResumeDocument),now);
+assert.equal(blank.categories.reduce((sum,item)=>sum+item.weight,0),100,"score weights total 100");
+assert.ok(blank.missingInformation.includes("A valid email address"));
+assert.match(blank.disclaimer,/does not predict acceptance/i);
+const dataAnalyst=structuredClone(emptyResumeDocument);dataAnalyst.targetRole="Data Analyst";dataAnalyst.contact={fullName:"Asha Rao",email:"asha@example.com",phone:"+91 98888 12345",location:"Pune",linkedin:"",website:""};dataAnalyst.summary="Data analyst with SQL and Excel experience.";dataAnalyst.skills=["SQL","Excel"];
+dataAnalyst.experience=[{id:"exp-1",role:"Analyst",company:"Operlynt Lab",location:"Pune",startDate:"Jan 2024",endDate:"Present",description:["Analyzed 12,000 records and improved reporting speed by 25%","Built 4 dashboards for weekly reviews."].join(" ")}];dataAnalyst.education=[{id:"edu-1",school:"City University",degree:"BSc",field:"Statistics",location:"Pune",startDate:"2020",endDate:"2023",details:""}];dataAnalyst.projects=[{id:"project-1",name:"Sales insights",link:"",technologies:"SQL, Power BI",description:"Created a dashboard for monthly sales trends."}];
+assert.equal(ResumeDocumentSchema.safeParse(dataAnalyst).success,true,"structured resume validates after edits");
+const analysis=analyzeResume(dataAnalyst,now);assert.ok(analysis.score>=0&&analysis.score<=100);assert.equal(analysis.role,"Data Analyst");assert.ok(analysis.categories.find(x=>x.key==="impact").score>0);assert.ok(analysis.recommendedSkills.includes("Data visualization"));
+const dataRecommendations=recommendationsForRole("Data Analyst",["SQL"]);assert.ok(dataRecommendations.some(x=>x.recommendation_key==="course:kaggle-intro-sql"));assert.ok(dataRecommendations.some(x=>x.entity_type==="roadmap"&&x.href.includes("data-analyst")));assert.ok(dataRecommendations.some(x=>x.entity_type==="interview_track"));assert.ok(dataRecommendations.some(x=>x.entity_type==="practice_track"));assert.ok(dataRecommendations.some(x=>/selected Data Analyst and need to improve SQL/.test(x.reason)));
+const pythonRecommendations=recommendationsForRole("Python Developer",["Python"]);assert.ok(pythonRecommendations.some(x=>x.entity_type==="course_topic"&&/Python/i.test(x.title)));assert.ok(pythonRecommendations.some(x=>x.entity_type==="interview_track"));assert.ok(pythonRecommendations.some(x=>x.entity_type==="practice_track"));assert.ok(pythonRecommendations.some(x=>x.entity_type==="roadmap"));
+const sqlAnalysis=analyzeResume({...dataAnalyst,targetRole:"SQL Developer",skills:["Excel"],summary:"Operations analyst",projects:dataAnalyst.projects.map(x=>({...x,technologies:"Excel"}))},now);assert.ok(sqlAnalysis.recommendedSkills.includes("SQL"));assert.ok(recommendationsForRole("AI/ML Engineer",["Python"]).some(x=>x.entity_type==="roadmap"));
+const pdf=generateResumePdf(dataAnalyst);const pdfText=pdf.toString("latin1");assert.ok(pdfText.startsWith("%PDF-1.4"));assert.ok(pdfText.includes("%%EOF"));assert.ok(pdfText.includes("Asha Rao"));assert.ok(pdfText.includes("Data Analyst"));const startxref=Number(pdfText.match(/startxref\n(\d+)/)?.[1]);assert.ok(Number.isInteger(startxref)&&pdfText.slice(startxref).startsWith("xref"),"PDF xref table points to its byte offset");
+const longResume={...dataAnalyst,experience:Array.from({length:14},(_,i)=>({id:`exp-${i}`,role:`Role ${i}`,company:`Company ${i}`,location:"Remote",startDate:"2020",endDate:"2022",description:Array.from({length:15},()=>"Developed analysis workflows and improved reporting quality for business partners.").join("\n")}))};const multi=generateResumePdf(longResume).toString("latin1");assert.ok(Number(multi.match(/\/Count (\d+)/)?.[1])>1,"long resumes generate multiple PDF pages");
+console.log("Phase 3 unit checks passed: resume validation/edit shape, score categories, recommendations, PDF structure and multi-page export.");
+
+
