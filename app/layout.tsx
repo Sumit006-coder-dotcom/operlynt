@@ -3,8 +3,10 @@ import "./globals.css";
 import { SiteHeader, SiteFooter } from "@/components/ui";
 import { OptionalConsent } from "@/components/optional-consent";
 import { Suspense } from "react";
-
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://operlynt-hmuwvgxe.manus.space").replace(/\/$/, "");
+<Suspense fallback={null}>
+  <OptionalConsent />
+</Suspense>
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://operlyynt-hmuwvgxe.manus.space").replace(/\/$/, "");
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   alternates: { canonical: "/" },
@@ -18,6 +20,9 @@ export const metadata: Metadata = {
   openGraph: { title: "Operlynt — Resume builder, ATS score, and tech interview preparation", description: "Build resumes, check ATS scores, practice interviews, and learn what moves you toward your next role.", siteName: "Operlynt", type: "website", url: siteUrl, images: ["/opengraph-image"] },
   twitter: { card: "summary_large_image", title: "Operlynt — Career growth, more intentional", description: "Resume building, ATS scoring, interview preparation, courses, and career roadmaps in one workspace.", images: ["/opengraph-image"] },
   verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION } : undefined,
+  other: {
+  "google-adsense-account": "ca-pub-3072425233890321",
+},
 };
 export const viewport: Viewport = { themeColor: "#7055D9", width: "device-width", initialScale: 1 };
 
